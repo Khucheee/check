@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -10,22 +10,12 @@ type Answer struct {
 }
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health", checkHealth)
-
-	err := http.ListenAndServe(":8080", mux)
-	if err != nil {
-		println("ну что теперь, не запустился твой сервер")
-	}
+	router := gin.Default()
+	router.GET("/health", checkHealth)
+	router.Run("localhost:8080")
 }
 
-func checkHealth(w http.ResponseWriter, r *http.Request) {
+func checkHealth(c *gin.Context) {
 	answer := Answer{"UP"}
-	resp, err := json.Marshal(answer)
-	if err != nil {
-		println("что-то отвалилось при создании json")
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	c.IndentedJSON(http.StatusOK, answer)
 }
